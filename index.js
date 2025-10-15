@@ -19,26 +19,16 @@ const courtroomMap = {
 };
 
 app.post('/webhook', (req, res) => {
-  const params = req.body.sessionInfo?.parameters || {};
-  const courtroomNumber = parseInt(params.number);
+  console.log("Webhook triggered");
 
+  const params = req.body.queryResult?.parameters || {};
+  const courtroomNumber = parseInt(params.number);
   console.log("Received courtroom number:", courtroomNumber);
 
   if (isNaN(courtroomNumber)) {
     console.log("Invalid number received.");
     return res.json({
-      fulfillment_response: {
-        messages: [
-          {
-            text: {
-              text: [
-                "Sorry, I couldn't understand the courtroom number. Please try again.",
-                "Samahani, siwezi kuelewa nambari ya mahakama. Tafadhali jaribu tena."
-              ]
-            }
-          }
-        ]
-      }
+      fulfillmentText: "Sorry, I couldn't understand the courtroom number. Please try again.\nSamahani, siwezi kuelewa nambari ya mahakama. Tafadhali jaribu tena."
     });
   }
 
@@ -50,15 +40,7 @@ app.post('/webhook', (req, res) => {
   console.log("Responding with:", response.en);
 
   res.json({
-    fulfillment_response: {
-      messages: [
-        {
-          text: {
-            text: [`${response.en} ${response.sw}`]
-          }
-        }
-      ]
-    }
+    fulfillmentText: `${response.en} ${response.sw}`
   });
 });
 
