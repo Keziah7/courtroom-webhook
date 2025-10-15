@@ -75,12 +75,11 @@ const responses = {
   }
 };
 
-// Map similar intents to single response to reduce duplication
+// Map similar intents to single response
 const intentAliases = {
   Greeting: "Greeting",
   "Default Welcome Intent": "DefaultWelcomeIntent",
   "Thank You": "ThankYou",
-  Fallback: "DefaultFallbackIntent",
   "Default Fallback Intent": "DefaultFallbackIntent",
   Goodbye: "Goodbye"
 };
@@ -88,16 +87,22 @@ const intentAliases = {
 app.post('/webhook', (req, res) => {
   console.log("Webhook triggered");
 
+  // Debug: log entire request body
+  console.log("Request body:", JSON.stringify(req.body, null, 2));
+
   const intentName = req.body.queryResult.intent.displayName;
   const userQuery = req.body.queryResult?.queryText || "";
   const params = req.body.queryResult?.parameters || {};
 
-  // Handle CourtroomDirections separately (dynamic)
+  // Handle CourtroomDirections (dynamic)
   if(intentName === "CourtroomDirections") {
     let courtroomNumber = parseInt(params.number);
     if (isNaN(courtroomNumber)) {
       const match = userQuery.match(/\d+/);
-      if (match) courtroomNumber = parseInt(match[0]);
+      if (match) {
+        courtroomNumber = parseInt(match[0]);
+        console.log("Detected number from text:", courtroomNumber);
+      }
     }
 
     const responseCourtroom = courtroomMap[courtroomNumber] || {
@@ -105,6 +110,7 @@ app.post('/webhook', (req, res) => {
       sw: "Samahani, siwezi kupata chumba cha mahakama hicho. Tafadhali angalia nambari."
     };
 
+    console.log("Responding with:", `${responseCourtroom.en} ${responseCourtroom.sw}`);
     return res.json({ fulfillmentText: `${responseCourtroom.en} ${responseCourtroom.sw}` });
   }
 
@@ -117,6 +123,7 @@ app.post('/webhook', (req, res) => {
     sw: "Huduma hii bado haijatekelezwa."
   };
 
+  console.log("Responding with:", `${response.en} ${response.sw}`);
   res.json({ fulfillmentText: `${response.en} ${response.sw}` });
 });
 
