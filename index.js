@@ -19,10 +19,9 @@ const courtroomMap = {
 };
 
 app.post('/webhook', (req, res) => {
-  const params = req.body.sessionInfo?.parameters || {};
-  const number = parseInt(params.number);
+  const courtroomNumber = parseInt(req.body.sessionInfo?.parameters?.number);
 
-  const response = courtroomMap[number] || {
+  const response = courtroomMap[courtroomNumber] || {
     en: "Sorry, I couldn't find that courtroom. Please check the number.",
     sw: "Samahani, siwezi kupata chumba cha mahakama hicho. Tafadhali angalia nambari."
   };
@@ -39,6 +38,7 @@ app.post('/webhook', (req, res) => {
     }
   });
 });
+
 
 app.listen(port, () => {
   console.log(`Webhook listening on port ${port}`);
