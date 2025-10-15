@@ -19,10 +19,13 @@ const courtroomMap = {
 };
 
 app.post('/webhook', (req, res) => {
-  const courtroomNumber = parseInt(req.body.sessionInfo?.parameters?.number);
-  console.log("Extracted courtroom number:", courtroomNumber);
+  const params = req.body.sessionInfo?.parameters || {};
+  const courtroomNumber = parseInt(params.number);
+
+  console.log("Received courtroom number:", courtroomNumber);
 
   if (isNaN(courtroomNumber)) {
+    console.log("Invalid number received.");
     return res.json({
       fulfillment_response: {
         messages: [
@@ -43,6 +46,8 @@ app.post('/webhook', (req, res) => {
     en: "Sorry, I couldn't find that courtroom. Please check the number.",
     sw: "Samahani, siwezi kupata chumba cha mahakama hicho. Tafadhali angalia nambari."
   };
+
+  console.log("Responding with:", response.en);
 
   res.json({
     fulfillment_response: {
