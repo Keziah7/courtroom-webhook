@@ -21,10 +21,21 @@ const courtroomMap = {
 app.post('/webhook', (req, res) => {
   console.log("Webhook triggered");
 
+  // Extract the number parameter or detect it manually from text
   const params = req.body.queryResult?.parameters || {};
-  const courtroomNumber = parseInt(params.number);
-  console.log("Received courtroom number:", courtroomNumber);
+  let courtroomNumber = parseInt(params.number);
+  const userQuery = req.body.queryResult?.queryText || "";
 
+  // Try to detect number if not found
+  if (isNaN(courtroomNumber)) {
+    const match = userQuery.match(/\d+/);
+    if (match) {
+      courtroomNumber = parseInt(match[0]);
+      console.log("Detected number from text:", courtroomNumber);
+    }
+  }
+
+  // If still invalid, return an error message
   if (isNaN(courtroomNumber)) {
     console.log("Invalid number received.");
     return res.json({
@@ -32,6 +43,7 @@ app.post('/webhook', (req, res) => {
     });
   }
 
+  // Get the response from the map
   const response = courtroomMap[courtroomNumber] || {
     en: "Sorry, I couldn't find that courtroom. Please check the number.",
     sw: "Samahani, siwezi kupata chumba cha mahakama hicho. Tafadhali angalia nambari."
